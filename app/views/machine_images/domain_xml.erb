@@ -1,0 +1,21 @@
+<domain type='kvm'>
+  <name><%= name %></name>
+  <uuid><%= @mvi.uuid %></uuid>
+  <memory><%= @mvi.memory %></memory>
+  <vcpu><%= @mvi.cpus || 1 %></vcpu>
+  <os>
+    <type arch="<%= @mvi.arch %>">hvm</type>
+  </os>
+  <clock sync="localtime"/>
+  <devices>
+    <emulator>/usr/bin/qemu-kvm</emulator>
+    <disk type='file' device='disk'>
+      <source file='<%= @mvi.root_disk_image %>'/>
+      <target dev='hda'/>
+    </disk>
+    <interface type='network'>
+      <source network='<%= @mvi.network %>'/>
+    </interface>
+    <graphics type='vnc' port='-1' keymap='en'/>
+  </devices>
+</domain>

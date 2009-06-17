@@ -1,0 +1,16 @@
+<table border="0" cellspacing="5" cellpadding="5">
+  <caption><%= @instances.count %> Instance</caption>
+  <tr>
+    <% @instances.columns.each do |col| %>
+      <th><%= col.to_s.gsub('_',' ')%></th>
+    <% end %>
+  </tr>
+  <% @instances.each do |instance| %>
+    <tr>
+      <% @instances.columns.each do |col| 
+        next if col == :public_key %>
+        <td><%= instance[col].to_s[0..16] if instance[col]%></td>
+      <% end %>
+    </tr>
+  <% end %>
+</table>
