@@ -1,5 +1,15 @@
-<h3>List of Machine Images</h3>
-<br>
-<%= MachineImage.list.join("<br>") %>
+<table border="1" cellspacing="0" cellpadding="5">
+  <caption>Machine Images List</caption>
+  <thead>
+    <tr><th>image_id</th></tr>
+  </thead>
+  <tbody>
+    <% MachineImage.list.each do |name| %>
+      <tr>
+        <td><a href=<%= name %>><%= name %></a></td>
+      </tr>
+    <% end %>
+  </tbody>
+</table>
 <br>
 <a href="new">Register new image</a>

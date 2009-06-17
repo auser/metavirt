@@ -23,9 +23,12 @@ class TestMachineImage < Test::Unit::TestCase
     assert_kind_of MachineImage, @mvi
   end
   
-  def test_rsync_image
+  def test_rsync_to
     @mvi.rsync_to('/tmp/mv_testing')
-    p ``
+  end
+  
+  def test_read_domain_xml
+    pending
   end
   
   

@@ -25,12 +25,15 @@ class InitializeDB < Sequel::Migration
       Text :ifconfig
       Text :remoter_base_options
       String :vmx_file
+      String :instance_storage_path
     end
     
     create_table :machine_images do
       primary_key :id
-      String :name
-      String :remoter_base
+      String      :image_id
+      Integer     :size
+      Text        :domain_xml
+      String      :remoter_base
     end
     create_table :clouds do
       primary_key :id

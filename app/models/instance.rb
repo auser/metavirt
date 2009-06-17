@@ -6,6 +6,7 @@ require "macmap"
 
 module MetaVirt
   class Instance < Sequel::Model
+    include Dslify
     # create_table(:instances) do
     #   primary_key :id
     #   Integer :rank
@@ -65,19 +66,29 @@ module MetaVirt
         :remoter_base_options => nil,
         :instance_id => generate_instance_id,
         :vmx_file => nil,
-        :status => 'booting' 
+        :status => 'booting',
+        :instance_storage_path => '/var/metavirt/instances/'
        }
+    end
+    
+    def instance_storage_path
+      self.class.defaults.instance_storage_path
     end
     
     def self.safe_create(params={})
       safe_params = Instance.defaults.merge(default_params(params))
       # safe_params[:authorized_keys] << params[:public_key].to_s
       safe_params[:remoter_base_options] = params[:remote_base].to_yaml if params[:remote_base]
-      Instance.create(safe_params)
+      inst = Instance.create(safe_params)
+      inst.prepare_image if remoter_base.match /vmrun|libvirt/
+      inst
     end
     
     def prepare_image
-      machine_image = MachineImage.find(image_id)
+      mvi = MachineImage.find(image_id)
+      require "rubygems"; require "ruby-debug"; debugger 
+      mvi.rsync_to instance_storage_path
+      `tar -zxvf #{instance_storage_path}/#{mvi.image_id}`
       
     end
     

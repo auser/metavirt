@@ -12,6 +12,10 @@ module MetaVirt
       erb :new
     end
     
+    get '/:image_id' do
+      MachineImage.find params[:image_id].to_json
+    end
+    
     post '/' do
       mi = MachineImage.new
       mi.register_image :file=>params[:image_file][:tempfile]
