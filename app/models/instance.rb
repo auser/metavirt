@@ -71,9 +71,14 @@ module MetaVirt
     
     def self.safe_create(params={})
       safe_params = Instance.defaults.merge(default_params(params))
-      safe_params[:authorized_keys] << params[:public_key].to_s
+      # safe_params[:authorized_keys] << params[:public_key].to_s
       safe_params[:remoter_base_options] = params[:remote_base].to_yaml if params[:remote_base]
       Instance.create(safe_params)
+    end
+    
+    def prepare_image
+      machine_image = MachineImage.find(image_id)
+      
     end
     
     def start!

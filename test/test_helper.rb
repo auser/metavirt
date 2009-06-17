@@ -4,6 +4,7 @@ require "test/unit"
 require 'mocha'
 require 'sequel'
 require 'ruby-debug'
+require 'fileutils'
 require  File.dirname(__FILE__)+'/mock_remoter'
 
 $TESTING = true
