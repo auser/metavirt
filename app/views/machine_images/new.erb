@@ -4,19 +4,25 @@
 
 <form action="/machine_images/" method="post" accept-charset="utf-8" enctype='multipart/form-data'>
   <p>
-    <label for="domain_xml">domain_xml</label>
-    <input type="textarea" name="domain_xml" id="domain_xml">
+    <label for="description">Description</label><input type="text" name="description" value="" id="notes">
+    
   </p>
   <p>
-    <label>image file</label>
-    <input name='image_file' type="file">
+    <label for="arch">Architecture</label>
+    <INPUT TYPE=RADIO NAME="arch" VALUE="i386" checked=true>i386
+    <INPUT TYPE=RADIO NAME="arch" VALUE="x86_64">x86_64<BR>
   </p>
   <p>
+    <label>Root Disk Image (qcow2 format)</label>
+    <input name='root_disk_image' type="file">
+  </p>
+  
+  <!-- <p>
     <label for="image_type">image type</label>
     <SELECT NAME="image_type">
       <OPTION VALUE="libvirt">libvirt</option>
       <OPTION VALUE="vmrun">vmrun</option>
     </SELECT>
-  </p>
+  </p> -->
   <input type='submit' value='submit'>
 </form>

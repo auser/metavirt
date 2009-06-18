@@ -5,7 +5,7 @@ class TestInstance < Test::Unit::TestCase
     @inst = Instance.create({ 
       :authorized_keys => 'ssh-rsa AAAAB3NzaAAABIwA...',
       :keypair_name => 'id_stuff',
-      :image_id => 'ami-8b30d5e2',
+      :image_id => 'mvi-8b30d5e2',
       :remoter_base => 'vmrun',
       :created_at => Time.now
      })
@@ -36,12 +36,18 @@ class TestInstance < Test::Unit::TestCase
   
   def test_to_json
     parsed = JSON.parse(@inst.to_json).symbolize_keys!
-    assert_equal parsed.size, @inst.values.size
+    parsed[:created_at] = @inst.created_at
+    p parsed
+    p '----'
+    p @inst.to_hash
+    # assert_equal parsed.size, @inst.values.size
     assert_equal parsed, @inst.to_hash
     @inst.values.each do |k,v|
-      next if k.to_s.scan('_at').size>0
-      #parsed[k] = Time.parse(parsed[k])
-      assert_equal(parsed[k], v)
+      next if k == :id
+      if parsed[k]!=v
+        puts "#{k} #{parsed[k]} != #{v}"
+        assert_equal(parsed[k], v)
+      end
     end
   end
   
@@ -50,10 +56,14 @@ class TestInstance < Test::Unit::TestCase
     assert_equal i.options, {:things=>[1,2,'wow']}
   end
   
+  def test_prepare_image
+    
+  end
+  
   def test_start
     @inst.stubs(:provider).returns(MockRemoter.new)
     launched = @inst.start!
-    assert launched.status == 'booting'
+    assert_equal 'pending', launched.status
     assert_equal launched.instance_id, @inst.instance_id
   end
     

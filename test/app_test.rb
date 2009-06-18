@@ -13,4 +13,9 @@ class AppTest < Test::Unit::TestCase
     assert last_response.ok?
   end
   
+  def test_run_instance
+    get('/run_instance')
+    
+  end
+  
 end

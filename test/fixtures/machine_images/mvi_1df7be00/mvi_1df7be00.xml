@@ -1,20 +1,18 @@
 <domain type='kvm'>
-  <name><%= name %></name>
-  <uuid><%= uuid %></uuid>
-  <memory><%= memory %></memory>
-  <vcpu><%= cpus || 1 %></vcpu>
+  <memory>256000</memory>
+  <vcpu>1</vcpu>
   <os>
-    <type arch="<%= @mvi.arch %>">hvm</type>
+    <type arch="i386">hvm</type>
   </os>
   <clock sync="localtime"/>
   <devices>
     <emulator>/usr/bin/qemu-kvm</emulator>
     <disk type='file' device='disk'>
-      <source file='<%= root_disk_image %>'/>
+      <source file='disk0.qcow2'/>
       <target dev='hda'/>
     </disk>
     <interface type='network'>
-      <source network='<%= @mvi.network %>'/>
+      <source network='default'/>
     </interface>
     <graphics type='vnc' port='-1' keymap='en'/>
   </devices>

@@ -4,33 +4,36 @@ require 'uuid'
 # require "poolparty"
 require "macmap"
 
+# primary_key :id
+# Integer :rank
+# String :instance_id
+# String :image_id
+# String :status, :default=>'pending'
+# String :public_ip
+# String :internal_ip
+# String :mac_address
+# String :keypair_name
+# String :authorized_keys
+# String :remoter_base
+# String :cloud
+# String :pool
+# Timestamp :created_at
+# Timestamp :updated_at
+# Timestamp :launched_at
+# Timestamp :booted_at
+# Timestamp :terminated_at
+# Text :ifconfig
+# Text :remoter_base_options
+# String :vmx_file
+# String :instance_storage_path
+
 module MetaVirt
   class Instance < Sequel::Model
     include Dslify
-    # create_table(:instances) do
-    #   primary_key :id
-    #   Integer :rank
-    #   String :instance_id
-    #   String :image_id
-    #   String :status, :default=>'pending'
-    #   String :public_ip
-    #   String :internal_ip
-    #   String :mac_address
-    #   String :keypair
-    #   String :authorized_keys
-    #   String :remoter_base
-    #   String :cloud
-    #   String :pool
-    #   Timestamp :created_at
-    #   Timestamp :updated_at
-    #   Timestamp :launched_at
-    #   Timestamp :booted_at
-    #   Timestamp :terminated_at
-    #   Text :ifconfig
-    #   Text :remoter_base_options
-    # end
     
-    # Overload save to save to cloudkit also
+    default_options :instances_playground => '/var/metavirt/instances'
+    
+    #save to cloudkit if available
     def save(*args, &block)
       super
       begin
@@ -80,16 +83,13 @@ module MetaVirt
       # safe_params[:authorized_keys] << params[:public_key].to_s
       safe_params[:remoter_base_options] = params[:remote_base].to_yaml if params[:remote_base]
       inst = Instance.create(safe_params)
-      inst.prepare_image if remoter_base.match /vmrun|libvirt/
+      inst.prepare_image if inst.remoter_base.match /vmrun|libvirt/
       inst
     end
     
     def prepare_image
       mvi = MachineImage.find(image_id)
-      require "rubygems"; require "ruby-debug"; debugger 
-      mvi.rsync_to instance_storage_path
-      `tar -zxvf #{instance_storage_path}/#{mvi.image_id}`
-      
+      mvi.rsync_clone_to "#{instances_playground}/#{instance_id}"
     end
     
     def start!

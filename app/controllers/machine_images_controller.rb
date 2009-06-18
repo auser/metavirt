@@ -12,13 +12,18 @@ module MetaVirt
       erb :new
     end
     
-    get '/:image_id' do
-      MachineImage.find params[:image_id].to_json
+    get '/:image_id' do      
+      @mvi = MachineImage.find params[:image_id]
+      if request.env['HTTP_ACCEPT'] && request.env['HTTP_ACCEPT'].scan('html')
+        erb :show 
+      else
+        @mvi.to_json
+      end
     end
     
     post '/' do
-      mi = MachineImage.new
-      mi.register_image :file=>params[:image_file][:tempfile]
+      mi = MachineImage.new(params)
+      mi.register_image :root_disk_image=>params[:root_disk_image]
       [mi.name].to_json
     end
     

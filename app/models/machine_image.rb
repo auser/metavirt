@@ -10,26 +10,22 @@ module MetaVirt
   class MachineImage #< Sequl::Model
     include Dslify
     
-    default_options :cpus   => 1,
-                    :memory => 256,
-                    :arch   => 'i386',
-                    :network => 'defualt'
-    
-    attr_reader :repository
-    attr_accessor :image_id, :root_disk_image
-    
-    @repository =  File.dirname(__FILE__)+'/../../machine_images/'
-    
-    class << self
-      attr_reader :repository
+    default_options :cpus       => 1,
+                    :memory     => 256,
+                    :arch       => 'i386',
+                    :network    => 'defualt',
+                    :repository => File.expand_path(File.dirname(__FILE__)+'/../../machine_images'),
+                    :root_disk_image => nil
+                    
+    def self.list(alternate_repository=nil)
+      repo = alternate_repository || dsl_options[:repository]
+      Dir["#{repo}/mvi_*"].collect {|f| f.split('/').last }
     end
     
-    def self.list
-      Dir["#{repository}/mvi_*"].collect {|f| f.split('/').last }
-    end
-    
-    def self.find(image_id)
-      if File.exists?("#{repository}/#{image_id}") 
+    def self.find(image_id, opts={})
+      target = "#{opts[:repository] || dsl_options[:repository]}/#{image_id}"
+      p [:target, target]
+      if File.exists?(target)
         new :image_id => image_id
       else
         nil
@@ -37,54 +33,104 @@ module MetaVirt
     end
     
     def initialize(options={})
-      @repository = options[:repository] || self.class.repository
-      @image_id = options[:image_id]
-      set_vars_from_options default_options.merge(options)
+      set_vars_from_options options
+      if File.exists?("#{repository}/#{image_id}") 
+        # set variables from domain.xml
+        hsh = parse_domain_xml
+        root_disk_image hsh[:devices].first[:disk].last[:source].first.file
+        uuid hsh[:uuid]
+        arch hsh.os.first[:type].first[:arch]
+        image_id hsh[:name]
+      end
     end
     
-    def name
-      "#{image_id}.tgz"
+    def description(note=nil)
+      if note
+        File.open("#{path}/description.txt", 'w'){|f| f<< note}
+      elsif File.file?("#{path}/description.txt") 
+        content = File.read("#{path}/description.txt")
+      end
+    end
+    
+    def uuid(n=nil)
+      if n.nil?
+        @uuid ||= UUID.generate
+      else
+        @uuid = n
+      end
+    end
+    
+    def image_id(n=nil)
+      if n.nil?
+        @image_id ||= "mvi_#{uuid[0..7]}"
+      else
+        @image_id = n
+      end
+    end
+    
+    def name(n=nil)
+      image_id(n)
     end
     
     def to_s
       image_id
     end
     
-    def register_image(opts={})
-      @uuid=UUID.generate
-      options = {:file =>nil}.merge! opts
-      @image_id = "mvi_#{@uuid[0..7]}.tgz"
-      FileUtils.copy_file(options[:file].path, "#{path}.tgz")
-      unbundle
-      @root_disk_image = Dir["#{path}/*/*.qcow"].first #FIXME: this is a weak, optimistic method
-      File.open("#{path}/domain.xml",'w'){|f| f << erb(:domain_xml)}
+    #options must contain :root_disk_image and :arch
+    def register_image(options={})
+      FileUtils.mkdir_p(path)
+      FileUtils.cp(
+        options[:root_disk_image].tempfile.path, 
+        "#{path}/#{options[:root_disk_image].filename}"
+      )
+      self.root_disk_image File.expand_path("#{path}/#{options[:root_disk_image].filename}")
+      write_domain_xml
     end
     
     def path
       "#{repository}/#{image_id}"
     end
     
-    def rsync_to(target, rsync_opts='')
-      `rsync #{rsync_opts} #{path}`
+    def rsync_clone_to(target='/var/metavirt/instances/', rsync_opts='-a')
+      droid = self.class.new(self.dsl_options)
+      droid.uuid UUID.generate
+      p [:new_uuid, droid.uuid, droid.image_id]
+      FileUtils.mkdir_p("#{path}/clones/")
+      droid.root_disk_image("#{target}/#{droid.image_id}/#{File.basename(root_disk_image)}")
+      droid.write_domain_xml("#{path}/clones/")
+      `rsync #{rsync_opts} "#{path}/clones/#{droid.image_id}.xml" #{target}`
+      `rsync #{rsync_opts} #{root_disk_image} #{target}`
     end
     
-    def unbundle
-      FileUtils.mkdir_p(path)
-      `tar -C #{path} -zxvf #{path}.tgz`
+    def write_domain_xml(location=path)
+      template = open(File.dirname(__FILE__)+'/../views/machine_images/domain_xml.erb').read
+      @mvi=self  #put in instance varibale for erb
+      xml = ERB.new(template).result(binding)
+      File.open("#{location}/#{image_id}.xml",'w'){|f| f << xml}
+      xml
     end
     
-    def read_domain_xml
-      filename = Dir["#{path}/*/*.xml"].first  #FIXME: this is a weak, optimistic method
+    def domain_xml
+      open("#{path}/#{image_id}.xml").read
+    end
+    
+    def parse_domain_xml(location=nil)
+      filename = location || File.join(path, "#{image_id}.xml")
       hsh = XmlSimple.xml_in(filename, 'KeyToSymbol'=>true)
-      # hsh.delete :uuid
-      # hsh.deep_delete :mac
-      hsh[:devices].first[:disk].last[:source]
+      hsh.symbolize_keys!
     end
     
-    def self.available_hypervisors
-      ["xen", "kvm", "qemu", "kqemu"]
+    def to_hash
+      dsl_options.merge(
+        :domain_xml => domain_xml,
+        :image_id => image_id,
+        :uuid => uuid
+      )
     end
     
+    def to_json
+      to_hash.to_json
+    end
     
   end
 end

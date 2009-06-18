@@ -16,6 +16,9 @@ DB = Sequel.connect("sqlite://db/metavirt.db") unless defined?(DB)
 Dir[File.dirname(__FILE__)+"/app/*/*.rb"].each{|part| require part}
 
 module MetaVirt
+  include Rack::Utils
+  alias_method :h, :escape_html
+  
   class MetadataServer < Sinatra::Base
     SERVER_URI='http://192.168.4.4.10:3000' unless defined? SERVER_URI
     
@@ -27,7 +30,7 @@ module MetaVirt
       set :views, File.dirname(__FILE__) + '/app/views'
       Metavirt::Log.init "metavirt", "#{Dir.pwd}/log"
       
-      unless $TESTING
+      if ENV['COLUMBUS'] && !$TESTING 
         Columbus::Server.name = "columbus-server"
         Columbus::Server.description = ENV["IP"] ? ENV["IP"] : Instance.parse_ifconfig(%x{ifconfig})[:ips].values.last
         

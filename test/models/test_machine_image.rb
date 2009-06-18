@@ -2,23 +2,26 @@ require File.dirname(__FILE__) + "/../test_helper"
 
 class TestMachineImage < Test::Unit::TestCase
   def setup
-    FileUtils.mkdir_p('/tmp/mv_testing')
-    MachineImage.stubs(:repository).returns('/tmp/mv_testing')
-    File.open('/tmp/mv_testing/mvi_fake', 'w'){|f| f<< "fake. This should be a tarball"}
-    @mvi = MachineImage.find("mvi_fake")
-  end
-  
-  def teardown
-    # File.rm_dir('/tmp/mv_testing')
+    @repo = File.dirname(__FILE__)+'/../fixtures/machine_images'
+    @mvi = MachineImage.new(
+            :cpus       => 1,
+            :memory     => 256,
+            :arch       => 'i386',
+            :network    => 'defualt',
+            :uuid       => UUID.generate,
+            :repository => @repo,
+            :root_disk_image => "#{@repo}/mvi_1df7be00/disk0.qcow2",
+            :image_id   => 'mvi_1df7be00'
+            )
   end
   
   def test_list
     assert_kind_of Array, MachineImage.list
-    assert MachineImage.list.include? 'mvi_fake'
+    assert MachineImage.list(@repo).include?(@mvi.image_id)
   end
   
   def test_find
-    assert_equal 'mvi_fake', @mvi.image_id
+    assert_match /mvi_\S*/, @mvi.image_id
     assert_equal @mvi.image_id, @mvi.name
     assert_kind_of MachineImage, @mvi
   end
@@ -28,7 +31,23 @@ class TestMachineImage < Test::Unit::TestCase
   end
   
   def test_read_domain_xml
-    pending
+    assert @mvi.domain_xml.match(/domain/)
+    assert @mvi.domain_xml.match(/disk0.qcow2/)
+  end
+  
+  def test_rsync_image
+    
+  end
+  
+  def test_description
+    @mvi.description "very informative"
+    assert_equal "very informative", @mvi.description
+  end
+  
+  def test_parse_xml
+    parsed = @mvi.parse_domain_xml
+    assert_equal 'disk0.qcow2', parsed[:devices].first[:disk].last[:source].first.file
+    assert_equal 'kvm', parsed[:type]
   end
   
   
