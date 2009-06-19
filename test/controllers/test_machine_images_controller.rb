@@ -35,16 +35,13 @@ class TestMachineImagesController < Test::Unit::TestCase
     m_name =  JSON.parse(last_response.body).first
     assert MachineImage.list('/tmp/mv_testing').include?(m_name)
     assert File.exists?("/tmp/mv_testing/#{m_name}/disk0.qcow2")
-    assert File.file?("/tmp/mv_testing/#{m_name}/domain.xml")
-    assert_match /disk0.qcow2/, open("/tmp/mv_testing/#{m_name}/domain.xml").read
-    assert_match /#{m_name}/, open("/tmp/mv_testing/#{m_name}/domain.xml").read
-    
+    assert File.file?("/tmp/mv_testing/#{m_name}/#{m_name}.xml")
+    assert_match /disk0.qcow2/, open("/tmp/mv_testing/#{m_name}/#{m_name}.xml").read
+    assert_match /#{m_name}/, open("/tmp/mv_testing/#{m_name}/#{m_name}.xml").read
     
     get("/#{m_name}")
     assert last_response.ok?
     
   end
   
-  
-   
 end

@@ -17,6 +17,12 @@ module PoolParty
         super
       end
       
+      def self.register_image(domain_xml_file)
+        require "rubygems"; require "ruby-debug"; debugger 
+        
+        `virsh create #{domain_xml_file}`
+      end
+      
       def self.launch_new_instance!(o={})
         new(o).launch_new_instance!
       end

@@ -6,7 +6,7 @@ Dir["#{File.dirname(__FILE__)}/vendor/gems/*/lib/"].each do |lib|
   $:.unshift lib
 end
 $:.unshift File.dirname(__FILE__)
-gems = %w(sinatra sequel json dnssd columbus).each {|gem| require gem}
+gems = %w(sinatra sequel json).each {|gem| require gem}
 
 Dir[File.dirname(__FILE__)+"/lib/*.rb"].each{|lib| require lib}
 Dir[File.dirname(__FILE__)+"/lib/*/*.rb"].each{|lib| require lib}
@@ -30,7 +30,9 @@ module MetaVirt
       set :views, File.dirname(__FILE__) + '/app/views'
       Metavirt::Log.init "metavirt", "#{Dir.pwd}/log"
       
-      if ENV['COLUMBUS'] && !$TESTING 
+      if ENV['COLUMBUS'] && !$TESTING
+        require 'dnssd'
+        require  'columbus'
         Columbus::Server.name = "columbus-server"
         Columbus::Server.description = ENV["IP"] ? ENV["IP"] : Instance.parse_ifconfig(%x{ifconfig})[:ips].values.last
         

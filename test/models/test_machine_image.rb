@@ -3,16 +3,7 @@ require File.dirname(__FILE__) + "/../test_helper"
 class TestMachineImage < Test::Unit::TestCase
   def setup
     @repo = File.dirname(__FILE__)+'/../fixtures/machine_images'
-    @mvi = MachineImage.new(
-            :cpus       => 1,
-            :memory     => 256,
-            :arch       => 'i386',
-            :network    => 'defualt',
-            :uuid       => UUID.generate,
-            :repository => @repo,
-            :root_disk_image => "#{@repo}/mvi_1df7be00/disk0.qcow2",
-            :image_id   => 'mvi_1df7be00'
-            )
+    @mvi = machine_image_fixture
   end
   
   def test_list
@@ -27,7 +18,9 @@ class TestMachineImage < Test::Unit::TestCase
   end
   
   def test_rsync_to
-    @mvi.rsync_to('/tmp/mv_testing')
+    @mvi.rsync_clone_to('/tmp/mv_testing')
+    File.exists?("/tmp/mv_testing/#{@mvi.image_id}.xml")
+    File.exists?("/tmp/mv_testing/#{@mvi.root_disk_image}")
   end
   
   def test_read_domain_xml

@@ -34,7 +34,7 @@ module MetaVirt
     
     def initialize(options={})
       set_vars_from_options options
-      if File.exists?("#{repository}/#{image_id}") 
+      if File.file?("#{repository}/#{image_id}/#{image_id}.xml") 
         # set variables from domain.xml
         hsh = parse_domain_xml
         root_disk_image hsh[:devices].first[:disk].last[:source].first.file
@@ -46,6 +46,7 @@ module MetaVirt
     
     def description(note=nil)
       if note
+        FileUtils.mkdir_p(path) if !File.exists?(path)
         File.open("#{path}/description.txt", 'w'){|f| f<< note}
       elsif File.file?("#{path}/description.txt") 
         content = File.read("#{path}/description.txt")
@@ -94,12 +95,17 @@ module MetaVirt
     def rsync_clone_to(target='/var/metavirt/instances/', rsync_opts='-a')
       droid = self.class.new(self.dsl_options)
       droid.uuid UUID.generate
-      p [:new_uuid, droid.uuid, droid.image_id]
-      FileUtils.mkdir_p("#{path}/clones/")
-      droid.root_disk_image("#{target}/#{droid.image_id}/#{File.basename(root_disk_image)}")
-      droid.write_domain_xml("#{path}/clones/")
-      `rsync #{rsync_opts} "#{path}/clones/#{droid.image_id}.xml" #{target}`
-      `rsync #{rsync_opts} #{root_disk_image} #{target}`
+      FileUtils.mkdir_p("#{path}/clones/#{droid.image_id}")
+      droid.root_disk_image("#{target}/#{root_disk_image_name}")
+      droid.write_domain_xml("#{path}/clones/#{droid.image_id}")
+      FileUtils.ln_s(root_disk_image, "#{path}/clones/#{droid.image_id}/#{root_disk_image_name}")
+      `rsync -L #{rsync_opts} "#{path}/clones/#{droid.image_id}/" #{target}`
+      # `rsync #{rsync_opts} #{root_disk_image} #{target}`
+      droid
+    end
+    
+    def root_disk_image_name
+      File.basename(root_disk_image)
     end
     
     def write_domain_xml(location=path)

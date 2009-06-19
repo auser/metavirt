@@ -9,6 +9,8 @@ class TestInstance < Test::Unit::TestCase
       :remoter_base => 'vmrun',
       :created_at => Time.now
      })
+     @mvi = machine_image_fixture
+
   end
   
   def test_should_be_able_to_create
@@ -26,11 +28,17 @@ class TestInstance < Test::Unit::TestCase
     assert_equal '76.4.4.4', params[:public_ip]
   end
   
+  def test_prepare_image
+     droid = @inst.prepare_image
+  end
+  
+  
   def test_safe_create
-    i=Instance.safe_create({:bad=>'hacked', :image_id=>'fred', :public_key=>'sshkeypub'})
-    assert i.image_id = 'fred'
+    MachineImage.stubs(:find).returns(@mvi)
+    i=Instance.safe_create({:bad=>'hacked', :image_id=>@mvi.image_id, :authorized_keys=>'sshkeypub'})
+    assert_equal @mvi.image_id, i.image_id
     assert i.created_at.nil? == false
-    assert_equal i.authorized_keys, 'sshkeypub'
+    assert_equal 'sshkeypub', i.authorized_keys
     assert_raises NoMethodError do i.bad end
   end
   

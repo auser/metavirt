@@ -22,3 +22,16 @@ Test::Unit::TestCase.send(:include, Metavirt)
 def fake_instance(opts={})
   @inst = Instance.create(MockRemoter.generate_hash.merge(:created_at=>Time.now))
 end
+
+def machine_image_fixture
+   MachineImage.new(
+          :cpus       => 1,
+          :memory     => 256,
+          :arch       => 'i386',
+          :network    => 'defualt',
+          :uuid       => '1df7be00'+UUID.generate[8..-1],
+          :repository => @repo,
+          :root_disk_image => "#{@repo}/mvi_1df7be00/disk0.qcow2",
+          :image_id   => 'mvi_1df7be00'
+          )
+end

@@ -89,12 +89,16 @@ module MetaVirt
     
     def prepare_image
       mvi = MachineImage.find(image_id)
-      mvi.rsync_clone_to "#{instances_playground}/#{instance_id}"
+      raise("Can't find image #{image_id}") if mvi.nil?
+      droid = mvi.rsync_clone_to "#{instances_playground}/#{instance_id}"
+      if provider.respond_to? :register_image
+        provider.register_image("#{instances_playground}/#{instance_id}/#{droid.image_id}.xml")
+      end
+      droid
     end
     
     def start!
       opts = self.to_hash
-      puts opts.inspect
       # remove remoter_base_options yaml string and yaml load into options
       opts.delete(:remoter_base_options)
       opts.merge! options if options
@@ -192,14 +196,13 @@ module MetaVirt
     
     def self.generate_instance_id
       uuid = UUID.generate.gsub(/-/, '')
-      "mv_#{uuid[0..8]}"
+      "i_#{uuid[0..8]}"
     end
     def generate_instance_id
       self.class.generate_instance_id
     end
     
     def self.generate_mac_address
-      require 'uuid'
       uuid = UUID.generate.gsub(/-/, '')
       mac = Array.new(6)
       mac_address = mac.each_with_index{|v, i| mac[i]=uuid[i*2..i*2+1] }.join(':')
