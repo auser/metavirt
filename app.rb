@@ -19,6 +19,12 @@ module MetaVirt
   include Rack::Utils
   alias_method :h, :escape_html
   
+  class Sinatra::Base
+    def requested?(http_accept)
+      request.env['HTTP_ACCEPT'] && request.env['HTTP_ACCEPT'].match(/#{http_accept.to_s}/i) 
+    end
+  end
+  
   class MetadataServer < Sinatra::Base
     SERVER_URI='http://192.168.4.4.10:3000' unless defined? SERVER_URI
     
@@ -31,6 +37,7 @@ module MetaVirt
       Metavirt::Log.init "metavirt", "#{Dir.pwd}/log"
       
       if ENV['COLUMBUS'] && !$TESTING
+        ENV['AVAHI_COMPAT_NOWARN']='1'
         require 'dnssd'
         require  'columbus'
         Columbus::Server.name = "columbus-server"

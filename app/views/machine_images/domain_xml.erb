@@ -4,19 +4,37 @@
   <memory><%= memory %></memory>
   <vcpu><%= cpus || 1 %></vcpu>
   <os>
-    <type arch="<%= @mvi.arch %>">hvm</type>
+    <type arch="<%= @mvi.arch %>" machine='pc'>hvm</type>
+    <boot dev='hd'/>
   </os>
-  <clock sync="localtime"/>
+  <features>
+    <acpi/>
+    <apic/>
+    <pae/>
+  </features>
+  <clock offset='utc'/>
+  <on_poweroff>destroy</on_poweroff>
+  <on_reboot>restart</on_reboot>
+  <on_crash>restart</on_crash>
   <devices>
+      <emulator>/usr/bin/kvm</emulator>
     <disk type='file' device='disk'>
       <source file='<%= root_disk_image %>'/>
-      <target dev='hda'/>
+      <target dev='vda' bus='virtio'/>        
     </disk>
-      <interface type='bridge'>
-        <source bridge='br0'/>
-        <target dev='vnet0'/>
-        <model type='e1000'/>
-      </interface>
-    <graphics type='vnc' port='-1' keymap='en'/>
+    <serial type='pty'>
+      <source path='/dev/pts/5'/>
+      <target port='0'/>
+    </serial>
+    <console type='pty' tty='/dev/pts/5'>
+      <source path='/dev/pts/5'/>
+      <target port='0'/>
+    </console>  
+    <interface type='bridge'>
+      <source bridge='br0'/>
+      <target dev='vnet0'/>
+    </interface>
+    <input type='mouse' bus='ps2'/>
+    <graphics type='vnc' port='-1' autoport='yes' keymap='en-us'/>
   </devices>
 </domain>

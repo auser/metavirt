@@ -14,7 +14,7 @@ module MetaVirt
     
     get '/:image_id' do      
       @mvi = MachineImage.find params[:image_id]
-      if request.env['HTTP_ACCEPT'] && request.env['HTTP_ACCEPT'].scan('html')
+      if requested?(:html)
         erb :show 
       else
         @mvi.to_json

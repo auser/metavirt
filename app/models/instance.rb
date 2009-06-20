@@ -36,29 +36,29 @@ module MetaVirt
     #save to cloudkit if available
     def save(*args, &block)
       super
-      begin
-        require 'restclient'
-        server["/instances/#{instance_id}"].put(to_json)
-      rescue Exception => e
-        Metavirt::Log.error "cloudkit fail:\n\t#{e.inspect}"
-      end
+      # begin
+      #     require 'restclient'
+      #     server["/instances/#{instance_id}"].put(to_json)
+      #   rescue Exception => e
+      #     Metavirt::Log.error "cloudkit fail:\n\t#{e.inspect}"
+      #   end
       self
     end
     
     # server is used if you want to also store instance information in cloudkit
-    def server(server_config={})
-      if @server
-        @server
-      else
-        opts = { :content_type  =>'application/json', 
-                 :accept        => 'application/json',
-                 :host          => 'http://localhost',
-                 :port          => '3002'
-                }.merge(server_config)
-        @uri = "#{opts.delete(:host)}:#{opts.delete(:port)}"
-        @server = RestClient::Resource.new( @uri, opts)
-      end
-    end
+    # def server(server_config={})
+    #     if @server
+    #       @server
+    #     else
+    #       opts = { :content_type  =>'application/json', 
+    #                :accept        => 'application/json',
+    #                :host          => 'http://localhost',
+    #                :port          => '3002'
+    #               }.merge(server_config)
+    #       @uri = "#{opts.delete(:host)}:#{opts.delete(:port)}"
+    #       @server = RestClient::Resource.new( @uri, opts)
+    #     end
+    #   end
     
     def self.defaults
       { :authorized_keys => '',
@@ -73,16 +73,20 @@ module MetaVirt
         :instance_storage_path => '/var/metavirt/instances/'
        }
     end
+    # 
+    # def instance_storage_path
+    #   self.class.defaults.instance_storage_path
+    # end
     
-    def instance_storage_path
-      self.class.defaults.instance_storage_path
-    end
-    
-    def self.safe_create(params={})
+    def self.new(params={})
       safe_params = Instance.defaults.merge(default_params(params))
       # safe_params[:authorized_keys] << params[:public_key].to_s
       safe_params[:remoter_base_options] = params[:remote_base].to_yaml if params[:remote_base]
-      inst = Instance.create(safe_params)
+      inst = super(safe_params)
+    end
+    
+    def self.safe_create(params={})
+      inst = new params
       inst.prepare_image if inst.remoter_base.match /vmrun|libvirt/
       inst
     end
@@ -90,7 +94,8 @@ module MetaVirt
     def prepare_image
       mvi = MachineImage.find(image_id)
       raise("Can't find image #{image_id}") if mvi.nil?
-      droid = mvi.rsync_clone_to "#{instances_playground}/#{instance_id}"
+      droid = mvi.rsync_clone_to :target   => "#{instances_playground}/#{instance_id}",
+                                 :image_id => instance_id
       if provider.respond_to? :register_image
         provider.register_image("#{instances_playground}/#{instance_id}/#{droid.image_id}.xml")
       end

@@ -18,9 +18,15 @@ class TestMachineImage < Test::Unit::TestCase
   end
   
   def test_rsync_to
-    @mvi.rsync_clone_to('/tmp/mv_testing')
+    @mvi.rsync_clone_to(:target=>'/tmp/mv_testing')
     File.exists?("/tmp/mv_testing/#{@mvi.image_id}.xml")
+    File.exists?("/tmp/mv_testing/#{@mvi.root_disk_image}")    
+  end
+  
+  def test_rsync_to_custom_image_id
+    @mvi.rsync_clone_to(:target=>'/tmp/mv_testing', :image_id=>'custom')
     File.exists?("/tmp/mv_testing/#{@mvi.root_disk_image}")
+    File.exists?("/tmp/mv_testing/custom.xml")
   end
   
   def test_read_domain_xml

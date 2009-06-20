@@ -10,13 +10,22 @@ module MetaVirt
         # end
         
     get '/' do
-      Instance.all.to_json
+      @instances = Instance.all
+      if requested?(:html)
+        erb :index 
+      else
+        @instances.to_json
+      end
     end
     
     get "/:instance_id" do
-      inst = Instance.find(:instance_id=>params[:instance_id])
+      @instance = Instance.find(:instance_id=>params[:instance_id])
       response.status=404 if inst.nil?
-      inst.to_json
+      if requested?(:html)
+        erb :show 
+      else
+        @instance.to_json
+      end
     end
     
     post "/booted" do

@@ -11,7 +11,7 @@ module MetaVirt
     include Dslify
     
     default_options :cpus       => 1,
-                    :memory     => 256,
+                    :memory     => 319488,
                     :arch       => 'i386',
                     :network    => 'defualt',
                     :repository => File.expand_path(File.dirname(__FILE__)+'/../../machine_images'),
@@ -92,14 +92,17 @@ module MetaVirt
       "#{repository}/#{image_id}"
     end
     
-    def rsync_clone_to(target='/var/metavirt/instances/', rsync_opts='-a')
-      droid = self.class.new(self.dsl_options)
+    def rsync_clone_to(opts={})
+      options = {:target     => '/var/metavirt/instances/', 
+                 :rsync_opts => '-a'
+                }.merge(opts)
+      droid = self.class.new(self.dsl_options.merge(options))
       droid.uuid UUID.generate
       FileUtils.mkdir_p("#{path}/clones/#{droid.image_id}")
-      droid.root_disk_image("#{target}/#{root_disk_image_name}")
+      droid.root_disk_image("#{options[:target]}/#{root_disk_image_name}")
       droid.write_domain_xml("#{path}/clones/#{droid.image_id}")
       FileUtils.ln_s(root_disk_image, "#{path}/clones/#{droid.image_id}/#{root_disk_image_name}")
-      `rsync -L #{rsync_opts} "#{path}/clones/#{droid.image_id}/" #{target}`
+      `rsync -L #{options[:rsync_opts]} "#{path}/clones/#{droid.image_id}/" #{options[:target]}`
       # `rsync #{rsync_opts} #{root_disk_image} #{target}`
       droid
     end

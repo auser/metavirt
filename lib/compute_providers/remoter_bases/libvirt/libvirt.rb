@@ -17,17 +17,17 @@ module PoolParty
         super
       end
       
-      def self.register_image(domain_xml_file)
-        require "rubygems"; require "ruby-debug"; debugger 
-        
-        `virsh create #{domain_xml_file}`
+      def self.register_image(domain_xml_file)        
+        output = `virsh define #{domain_xml_file}`
+        puts output
+        output
       end
       
       def self.launch_new_instance!(o={})
         new(o).launch_new_instance!
       end
       def launch_new_instance!(o={})
-        `virsh start #{image_id}`
+        `virsh start #{image_id}`        
         describe_instance :image_id=>image_id
       end
       # Terminate an instance by id
