@@ -20,7 +20,7 @@ module MetaVirt
     
     get "/:instance_id" do
       @instance = Instance.find(:instance_id=>params[:instance_id])
-      response.status=404 if inst.nil?
+      response.status=404 if @instance.nil?
       if requested?(:html)
         erb :show 
       else

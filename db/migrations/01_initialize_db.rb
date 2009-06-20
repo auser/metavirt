@@ -19,7 +19,7 @@ class InitializeDB < Sequel::Migration
       String :pool
       Timestamp :created_at
       Timestamp :updated_at
-      Timestamp :launched_at
+      Timestamp :launch_time
       Timestamp :booted_at
       Timestamp :terminated_at
       Text :ifconfig

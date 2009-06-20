@@ -19,7 +19,7 @@ require "macmap"
 # String :pool
 # Timestamp :created_at
 # Timestamp :updated_at
-# Timestamp :launched_at
+# Timestamp :launch_time
 # Timestamp :booted_at
 # Timestamp :terminated_at
 # Text :ifconfig
@@ -78,15 +78,18 @@ module MetaVirt
     #   self.class.defaults.instance_storage_path
     # end
     
-    def self.new(params={})
+    # def self.new(params={})
+    #   safe_params = Instance.defaults.merge(default_params(params))
+    #   # safe_params[:authorized_keys] << params[:public_key].to_s
+    #   safe_params[:remoter_base_options] = params[:remote_base].to_yaml if params[:remote_base]
+    #   inst = super(safe_params)
+    # end
+    
+    def self.safe_create(params={})
       safe_params = Instance.defaults.merge(default_params(params))
       # safe_params[:authorized_keys] << params[:public_key].to_s
       safe_params[:remoter_base_options] = params[:remote_base].to_yaml if params[:remote_base]
-      inst = super(safe_params)
-    end
-    
-    def self.safe_create(params={})
-      inst = new params
+      inst = create safe_params
       inst.prepare_image if inst.remoter_base.match /vmrun|libvirt/
       inst
     end
