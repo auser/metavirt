@@ -2,6 +2,9 @@ module MetaVirt
   class InstancesController < Sinatra::Base
     configure do
       set :views, File.dirname(__FILE__) + '/../views/instances/'
+      layout do
+        File.read(File.dirname(__FILE__) + '/../views/layout.erb' )
+      end
     end
         # 
         # get "/" do

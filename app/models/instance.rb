@@ -117,6 +117,7 @@ module MetaVirt
     
     def to_json
       to_hash.to_json
+      # Yajl::Encoder.new.encode(to_hash)
     end
     
     # Dump to html

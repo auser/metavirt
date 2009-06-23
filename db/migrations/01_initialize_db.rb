@@ -35,6 +35,22 @@ class InitializeDB < Sequel::Migration
       Text        :domain_xml
       String      :remoter_base
     end
+    
+    create_table :hosts do
+      String :name
+      String :internal_ip
+      String :keypair_name
+      String :instances_storage_path, :default=>'/var/metavirt/instances'
+      Text :description
+      Integer :memory
+      String :cpu_count
+      Text :cpu_info
+      String :arch, :default => 'x86_64'
+      Integer :free_storage
+      Timestamp :created_at
+      Timestamp :updated_at
+    end
+    
     create_table :clouds do
       primary_key :id
       String :name

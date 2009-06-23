@@ -7,13 +7,12 @@ Dir["#{File.dirname(__FILE__)}/vendor/gems/*/lib/"].each do |lib|
 end
 $:.unshift File.dirname(__FILE__)
 gems = %w(sinatra sequel json).each {|gem| require gem}
+# require 'yajl/json_gem' #enable compatability with json gem
 
 Dir[File.dirname(__FILE__)+"/lib/*.rb"].each{|lib| require lib}
 Dir[File.dirname(__FILE__)+"/lib/*/*.rb"].each{|lib| require lib}
 
 DB = Sequel.connect("sqlite://db/metavirt.db") unless defined?(DB)
-
-Dir[File.dirname(__FILE__)+"/app/*/*.rb"].each{|part| require part}
 
 module MetaVirt
   include Rack::Utils
@@ -89,5 +88,7 @@ module MetaVirt
 
   end
 end
+
+Dir[File.dirname(__FILE__)+"/app/*/*.rb"].each{|part| require part}
 
 include MetaVirt #just to make my irb sessions easier

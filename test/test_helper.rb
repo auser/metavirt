@@ -24,7 +24,8 @@ def fake_instance(opts={})
 end
 
 def machine_image_fixture
-   MachineImage.new(
+  @repo = File.dirname(__FILE__)+'/../fixtures/machine_images'
+  mi = MachineImage.new(
           :cpus       => 1,
           :memory     => 256,
           :arch       => 'i386',
@@ -34,4 +35,6 @@ def machine_image_fixture
           :root_disk_image => "#{@repo}/mvi_1df7be00/disk0.qcow2",
           :image_id   => 'mvi_1df7be00'
           )
+  mi.root_disk_image = File.expand_path(@repo+'/mvi_1df7be00/disk0.qcow2')
+  mi
 end
