@@ -27,22 +27,23 @@ module PoolParty
         new(o).launch_new_instance!
       end
       def launch_new_instance!(o={})
-        `virsh start #{image_id}`        
+        `virsh start #{instance_id}`
         describe_instance :image_id=>image_id
       end
+      
       # Terminate an instance by id
       def self.terminate_instance!(o={})
         new(o).terminate_instance!
       end
       def terminate_instance!(o={})
-        `virsh shutdown #{image_id}`
+        `virsh destroy #{instance_id}`
       end
       
       def self.describe_instance(o={})
         new(o).describe_instance
       end
       def describe_instance(o={})
-        LibvirtInstance.new(o).description
+        LibvirtInstance.new(dsl_options.merge(o)).description
       end
       
       # Returns an array of instance name => state

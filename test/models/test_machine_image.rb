@@ -3,6 +3,7 @@ require File.dirname(__FILE__) + "/../test_helper"
 class TestMachineImage < Test::Unit::TestCase
   def setup
     @repo = File.dirname(__FILE__)+'/../fixtures/machine_images'
+    FileUtils.mkdir_p('/tmp/mv_testing')
     @mvi = machine_image_fixture
   end
   
@@ -17,7 +18,7 @@ class TestMachineImage < Test::Unit::TestCase
     assert_kind_of MachineImage, @mvi
   end
   
-  def test_rsync_to
+  def test_rsync_clone_to
     @mvi.rsync_clone_to(:target=>'/tmp/mv_testing')
     File.exists?("/tmp/mv_testing/#{@mvi.image_id}.xml")
     File.exists?("/tmp/mv_testing/#{@mvi.root_disk_image}")    
@@ -35,6 +36,10 @@ class TestMachineImage < Test::Unit::TestCase
   end
   
   def test_rsync_image
+    
+  end
+  
+  def test_delete_image
     
   end
   

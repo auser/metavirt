@@ -1,31 +1,6 @@
 require 'rubygems'
 require 'uuid'
-# $:.unshift(::File.join(::File.dirname(__FILE__), "/vendor/gems/poolparty/lib/"))
-# require "poolparty"
 require "macmap"
-
-# primary_key :id
-# Integer :rank
-# String :instance_id
-# String :image_id
-# String :status, :default=>'pending'
-# String :public_ip
-# String :internal_ip
-# String :mac_address
-# String :keypair_name
-# String :authorized_keys
-# String :remoter_base
-# String :cloud
-# String :pool
-# Timestamp :created_at
-# Timestamp :updated_at
-# Timestamp :launch_time
-# Timestamp :booted_at
-# Timestamp :terminated_at
-# Text :ifconfig
-# Text :remoter_base_options
-# String :vmx_file
-# String :instance_storage_path
 
 module MetaVirt
   class Instance < Sequel::Model
@@ -61,8 +36,8 @@ module MetaVirt
     #   end
     
     def self.defaults
-      { :authorized_keys => '',
-        :keypair_name => '',
+      { :authorized_keys => nil,
+        :keypair_name => nil,
         :image_id => nil,
         :remoter_base => :vmrun,
         :created_at => Time.now,
@@ -111,6 +86,8 @@ module MetaVirt
       opts.delete(:remoter_base_options)
       opts.merge! options if options
       launched = provider.launch_new_instance!(opts)
+      p [:opts, opts]
+      launched.launch_time = Time.now
       launched.symbolize_keys! if launched.respond_to? :symbolize_keys!
       if remoter_base=='vmrun'
         launched.delete(:instance_id)  # we want to use the metavirt id
@@ -134,7 +111,6 @@ module MetaVirt
     def to_hash
       hsh = columns.inject({}){|h, k| h[k]=values[k];h}
       hsh[:ip]=public_ip
-      hsh[:keypair] = keypair_name
       hsh.delete(:id)
       hsh.reject {|k,v| v.nil? || (v.empty? if v.respond_to? :empty)}
     end

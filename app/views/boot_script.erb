@@ -29,10 +29,10 @@ if [ -e /tmp/my-key ] ; then
   rm /tmp/my-key
 fi
 
-# METADATA_SERVER="<%= ::MetaVirt::MetadataServer::SERVER_URI %>"
-CLIENT=$(which columbus-client)
-IP=$($CLIENT -s columbus-server -q description)
-METADATA_SERVER="$(echo -n $IP):3000"
+ METADATA_SERVER="<%= ::MetaVirt::MetadataServer::SERVER_URI %>"
+#CLIENT=$(which columbus-client)
+#IP=$($CLIENT -s columbus-server -q description)
+#METADATA_SERVER="$(echo -n $IP):3000"
 # echo $METADATA_SERVER
 
 count=0

@@ -26,7 +26,7 @@ module MetaVirt
   end
   
   class MetadataServer < Sinatra::Base
-    SERVER_URI='http://192.168.4.4.10:3000' unless defined? SERVER_URI
+    SERVER_URI='http://192.168.1.97:3000' unless defined? SERVER_URI
     
     #TODO: add support for accepting clouds.rb from POST data
     # require "/Users/mfairchild/Code/poolparty_fresh/examples/metavirt_cloud.rb"
@@ -35,27 +35,8 @@ module MetaVirt
     configure do
       set :views, File.dirname(__FILE__) + '/app/views'
       Metavirt::Log.init "metavirt", "#{Dir.pwd}/log"
-      
-      if ENV['COLUMBUS'] && !$TESTING
-        ENV['AVAHI_COMPAT_NOWARN']='1'
-        require 'dnssd'
-        require  'columbus'
-        Columbus::Server.name = "columbus-server"
-        Columbus::Server.description = ENV["IP"] ? ENV["IP"] : Instance.parse_ifconfig(%x{ifconfig})[:ips].values.last
-        
-        @pid = fork do
-           Signal.trap(:USR1) {puts "STOPPING on USR1"; exit()}
-           Signal.trap(:TERM) {puts "STOPPING on TERM"; exit()}
-           Signal.trap(:INT) {puts "STOPPING on INT"; exit()}
-           while true do
-             Columbus::Server.announce("vmnet8")
-             sleep(90)
-           end           
-         end
-         Process.detach(@pid)
-      end
     end
-    
+        
     get "/" do
       @instances = DB[:instances]
       erb :home
@@ -89,6 +70,8 @@ module MetaVirt
     
     put( /\/run-instance|\/launch_new_instance/ ) do
       params =  JSON.parse(@env['rack.input'].read).symbolize_keys!
+      p [:params, params]
+      puts "\n----------\n"
       instance = Instance.safe_create(params)
       launched = instance.start!
       puts "Started instance #{launched.inspect}\n"

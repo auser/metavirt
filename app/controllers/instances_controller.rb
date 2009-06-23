@@ -18,7 +18,7 @@ module MetaVirt
       end
     end
     
-    get "/:instance_id" do
+    get "/:instance_id\/?" do
       @instance = Instance.find(:instance_id=>params[:instance_id])
       response.status=404 if @instance.nil?
       if requested?(:html)

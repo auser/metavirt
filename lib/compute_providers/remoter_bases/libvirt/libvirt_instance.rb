@@ -17,15 +17,6 @@ module PoolParty
                   :keypair_name,
                   :cloud
       
-      def initialize(o={}, cld=nil)
-        set_vars_from_options o
-        # super
-      end
-      
-      def to_hash
-        dsl_options
-      end
-      
       # TODO: this needs to be extended for selecting between multiple interfaces
       def mac_address(hsh=nil)
         mac_addresses.first(hsh)
@@ -40,6 +31,10 @@ module PoolParty
           }.flatten.collect{|c| c.values}.flatten
       end
       
+      def mac_address
+        mac_addresses( hsh ).first
+      end
+      
       def description
         p command = "virsh dumpxml #{instance_id || image_id || name}"
         xml = `#{command}`
@@ -50,9 +45,9 @@ module PoolParty
         self
       end
       
-      def mac_address
-        
-      end
+      # def shutdown
+      #   `virsh shutdown #{instance_id}`
+      # end
       
     end
     

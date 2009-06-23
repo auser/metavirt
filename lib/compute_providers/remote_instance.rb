@@ -13,15 +13,20 @@ module PoolParty
                   :ip,          # Ip of the remote instance
                   :internal_ip, # Internal ip of the remote instance
                   :public_ip,
+                  :launch_time,
                   :status       # Status of the remote instance
       
       def initialize(opts={})
         set_vars_from_options(opts) if opts.is_a?(Hash)
-        on_init
+        on_init  # overridable method for callbacks
+      end
+      
+      def to_hash
+        dsl_options
       end
       
       def keypair(*n)
-        @keypair ||= Key.new(key_name)
+        @keypair ||= Key.new(keypair_name)
       end
       
       ## hash like methods
@@ -74,7 +79,7 @@ module PoolParty
       end
       
       def elapsed_runtime
-        Time.now.to_i - launching_time.to_time.to_i
+        Time.now.to_i - launch_time.to_time.to_i
       end
       
       # Callback

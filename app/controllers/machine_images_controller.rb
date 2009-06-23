@@ -21,6 +21,11 @@ module MetaVirt
       end
     end
     
+    put '/delete' do
+      @mvi = MachineImage.find params[:image_id]
+      @mvi.delete
+    end
+    
     post '/' do
       mi = MachineImage.new(params)
       mi.register_image :root_disk_image=>params[:root_disk_image]

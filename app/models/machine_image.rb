@@ -92,6 +92,10 @@ module MetaVirt
       "#{repository}/#{image_id}"
     end
     
+    def delete
+      FileUtils.rm_rf(path)
+    end
+    
     def rsync_clone_to(opts={})
       options = {:target     => '/var/metavirt/instances/', 
                  :rsync_opts => '-a'
