@@ -1,14 +1,16 @@
-require File.dirname(__FILE__) + "/test_helper"
+require File.dirname(__FILE__) + "/../test_helper"
 
 class TestInstance < Test::Unit::TestCase
   def setup
     @inst = Instance.create({ 
       :authorized_keys => 'ssh-rsa AAAAB3NzaAAABIwA...',
       :keypair_name => 'id_stuff',
-      :image_id => 'ami-8b30d5e2',
+      :image_id => 'mvi-8b30d5e2',
       :remoter_base => 'vmrun',
       :created_at => Time.now
      })
+     @mvi = machine_image_fixture
+
   end
   
   def test_should_be_able_to_create
@@ -26,22 +28,34 @@ class TestInstance < Test::Unit::TestCase
     assert_equal '76.4.4.4', params[:public_ip]
   end
   
+  def test_prepare_image
+     droid = @inst.prepare_image
+  end
+  
+  
   def test_safe_create
-    i=Instance.safe_create({:bad=>'hacked', :image_id=>'fred', :public_key=>'sshkeypub'})
-    assert i.image_id = 'fred'
+    MachineImage.stubs(:find).returns(@mvi)
+    i=Instance.safe_create({:bad=>'hacked', :image_id=>@mvi.image_id, :authorized_keys=>'sshkeypub'})
+    assert_equal @mvi.image_id, i.image_id
     assert i.created_at.nil? == false
-    assert_equal i.authorized_keys, 'sshkeypub'
+    assert_equal 'sshkeypub', i.authorized_keys
     assert_raises NoMethodError do i.bad end
   end
   
   def test_to_json
     parsed = JSON.parse(@inst.to_json).symbolize_keys!
-    assert_equal parsed.size, @inst.values.size
+    parsed[:created_at] = @inst.created_at
+    p parsed
+    p '----'
+    p @inst.to_hash
+    # assert_equal parsed.size, @inst.values.size
     assert_equal parsed, @inst.to_hash
     @inst.values.each do |k,v|
-      next if k.to_s.scan('_at').size>0
-      #parsed[k] = Time.parse(parsed[k])
-      assert_equal(parsed[k], v)
+      next if k == :id
+      if parsed[k]!=v
+        puts "#{k} #{parsed[k]} != #{v}"
+        assert_equal(parsed[k], v)
+      end
     end
   end
   
@@ -50,10 +64,14 @@ class TestInstance < Test::Unit::TestCase
     assert_equal i.options, {:things=>[1,2,'wow']}
   end
   
+  def test_prepare_image
+    
+  end
+  
   def test_start
     @inst.stubs(:provider).returns(MockRemoter.new)
     launched = @inst.start!
-    assert launched.status == 'booting'
+    assert_equal 'booting', launched.status
     assert_equal launched.instance_id, @inst.instance_id
   end
     

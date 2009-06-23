@@ -1,0 +1,27 @@
+<table border="1" cellspacing="0" cellpadding="5">
+  <caption><%= @instances.count %> Instance</caption>
+  <tr>
+    <th>instance_id</th>
+    <th>image_id</th>
+    <th>status</th>
+    <th>launch_time</th>
+    <th>keypair_name</th>
+    <th>authorized_keys</th>
+    <th>mac_address</th>
+    <th>public_ip</th>
+    <th>internal_ip</th>
+  </tr>
+  <% @instances.each do |instance| %>
+    <tr>
+      <td><a href="<%= instance.instance_id %>"><%= instance.instance_id %></a></td>
+      <td><%= instance.image_id %></td>
+      <td><%= instance.status %></td>
+      <td><%= instance.launch_time %></td>
+      <td><%= instance.keypair_name %></td>
+      <td><%= instance.authorized_keys[0..10] %></td>
+      <td><%= instance.mac_address %></td>
+      <td><%= instance.public_ip %></td>
+      <td><a href='http://<%= instance.internal_ip %>:8642'><%= instance.internal_ip %></a></td>
+    </tr>
+  <% end %>
+</table>

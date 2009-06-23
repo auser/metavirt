@@ -1,0 +1,28 @@
+<h3>Upload a new machine image.</h3>
+<p>Machine images must be a gzipped tarball of a libvirt compatible machine image directory.</p>
+<hr>
+
+<form action="/machine_images/" method="post" accept-charset="utf-8" enctype='multipart/form-data'>
+  <p>
+    <label for="description">Description</label><input type="text" name="description" value="" id="notes">
+    
+  </p>
+  <p>
+    <label for="arch">Architecture</label>
+    <INPUT TYPE=RADIO NAME="arch" VALUE="i686" checked=true>i686
+    <INPUT TYPE=RADIO NAME="arch" VALUE="x86_64">x86_64<BR>
+  </p>
+  <p>
+    <label>Root Disk Image (qcow2 format)</label>
+    <input name='root_disk_image' type="file">
+  </p>
+  
+  <!-- <p>
+    <label for="image_type">image type</label>
+    <SELECT NAME="image_type">
+      <OPTION VALUE="libvirt">libvirt</option>
+      <OPTION VALUE="vmrun">vmrun</option>
+    </SELECT>
+  </p> -->
+  <input type='submit' value='submit'>
+</form>

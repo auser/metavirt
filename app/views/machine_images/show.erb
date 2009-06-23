@@ -1,0 +1,10 @@
+domain xml for <%= @mvi.image_id %>
+<hr>
+<pre>
+  <%=h @mvi.domain_xml %>
+</pre>
+<hr>
+<form action="delete" method="PUT" accept-charset="utf-8">
+  <input type="hidden" name="image_id" value="@mvi.image_id" id="image_id">
+  <p><input type="submit" value="Delete Image"></p>
+</form>

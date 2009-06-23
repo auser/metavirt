@@ -13,3 +13,6 @@
 [submodule "vendor/gems/macmap"]
 	path = vendor/gems/macmap
 	url = git://github.com/auser/macmap.git
+[submodule "vendor/gems/dslify"]
+	path = vendor/gems/dslify
+	url = git://github.com/auser/dslify.git

@@ -1,0 +1,19 @@
+<domain type='kvm'>
+  <memory>256000</memory>
+  <vcpu>1</vcpu>
+  <os>
+    <type arch="i386">hvm</type>
+  </os>
+  <clock sync="localtime"/>
+  <devices>
+    <emulator>/usr/bin/qemu-kvm</emulator>
+    <disk type='file' device='disk'>
+      <source file='disk0.qcow2'/>
+      <target dev='hda'/>
+    </disk>
+    <interface type='network'>
+      <source network='default'/>
+    </interface>
+    <graphics type='vnc' port='-1' keymap='en'/>
+  </devices>
+</domain>

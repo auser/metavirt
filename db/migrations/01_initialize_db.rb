@@ -19,18 +19,21 @@ class InitializeDB < Sequel::Migration
       String :pool
       Timestamp :created_at
       Timestamp :updated_at
-      Timestamp :launched_at
+      Timestamp :launch_time
       Timestamp :booted_at
       Timestamp :terminated_at
       Text :ifconfig
       Text :remoter_base_options
       String :vmx_file
+      String :instance_storage_path
     end
     
     create_table :machine_images do
       primary_key :id
-      String :name
-      String :remoter_base
+      String      :image_id
+      Integer     :size
+      Text        :domain_xml
+      String      :remoter_base
     end
     create_table :clouds do
       primary_key :id
