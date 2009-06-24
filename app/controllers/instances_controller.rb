@@ -2,6 +2,9 @@ module MetaVirt
   class InstancesController < Sinatra::Base
     configure do
       set :views, File.dirname(__FILE__) + '/../views/instances/'
+      layout do
+        File.read(File.dirname(__FILE__) + '/../views/layout.erb' )
+      end
     end
         # 
         # get "/" do
@@ -27,7 +30,18 @@ module MetaVirt
         @instance.to_json
       end
     end
-    
+
+    # TODO: activate this, and delete from app.rb
+    # put "/?" do
+    #   params =  JSON.parse(@env['rack.input'].read).symbolize_keys!
+    #   p [:params, params]
+    #   puts "\n----------\n"
+    #   instance = Instance.safe_create(params)
+    #   launched = instance.start!
+    #   puts "Started instance #{launched.inspect}\n"
+    #   instance.to_json
+    # end
+  
     post "/booted" do
       ifconfig_data = @env['rack.input'].read
       i_to_i = Instance.map_ip_to_interface(ifconfig_data)

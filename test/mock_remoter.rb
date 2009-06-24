@@ -1,6 +1,8 @@
 require 'uuid'
+require File.dirname(__FILE__)+"/../lib/compute_providers/remoter_base"
+require File.dirname(__FILE__)+"/../lib/compute_providers/remote_instance"
 
-class MockRemoter
+class MockRemoter < ::PoolParty::Remote::RemoterBase
   def self.generate_hash
     uuid = UUID.generate.gsub(/-/, '')
     mac = Array.new(6)
@@ -25,7 +27,7 @@ class MockRemoter
   def launch_new_instance!(o={})
     ip_not_assigned_yet = self.class.generate_hash
     @inst = ip_not_assigned_yet.merge(self.class.generate_ips)
-    ip_not_assigned_yet
+    MockRemoterInstance.new(ip_not_assigned_yet)
   end
   
   def terminate_instance(id)
@@ -38,4 +40,19 @@ class MockRemoter
   def describe_instances(o={})
     @inst ||= self.class.generate_hash
   end
+end
+
+class MockRemoterInstance < ::PoolParty::Remote::RemoteInstance
+  
+  # def method_missing(*m)
+  #   super and return if m && m.size==1
+  #   if has_key? m.first
+  #     fetch(m.first) 
+  #   elsif has_key? m.first.to_s
+  #     fetch(m)
+  #   else
+  #     super
+  #   end
+  # end
+
 end

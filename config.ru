@@ -24,6 +24,9 @@ end
 map "/machine_images" do
    run MetaVirt::MachineImagesController
 end
+map "/hosts" do
+   run MetaVirt::HostsController
+end
 
 
 # Rack::Handler::Ebb

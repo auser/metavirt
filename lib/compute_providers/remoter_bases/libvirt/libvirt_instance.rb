@@ -7,7 +7,6 @@ module PoolParty
       include Dslify
       
       dsl_methods :name,
-                  :instance_id, # Libvirt UUID
                   :image_id,
                   :ip,          # Ip of the remote instance, by default, the public_ip
                   :internal_ip, # Internal ip of the remote instance
@@ -17,10 +16,10 @@ module PoolParty
                   :keypair_name,
                   :cloud
       
-      # TODO: this needs to be extended for selecting between multiple interfaces
-      def mac_address(hsh=nil)
-        mac_addresses.first(hsh)
-      end
+      # def initialize(o={})
+      #   description
+      #   super
+      # end
       
       def mac_addresses(hsh=nil)
         data = hsh || description
@@ -31,15 +30,11 @@ module PoolParty
           }.flatten.collect{|c| c.values}.flatten
       end
       
-      def mac_address
-        mac_addresses( hsh ).first
-      end
-      
       def description
-        p command = "virsh dumpxml #{instance_id || image_id || name}"
+        p command = "virsh dumpxml #{instance_id || name}"
         xml = `#{command}`
-        hsh = XmlSimple.xml_in(xml, 'KeyToSymbol'=>true)
-        hsh[:state] = `virsh domstate #{instance_id || image_id || name}`
+        hsh = XmlSimple.xml_in(xml).symbolize_keys!
+        hsh[:state] = `virsh domstate #{instance_id || name}`
         hsh[:mac_address] = mac_addresses( hsh ).first
         dsl_options.merge! hsh
         self

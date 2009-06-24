@@ -7,13 +7,12 @@ Dir["#{File.dirname(__FILE__)}/vendor/gems/*/lib/"].each do |lib|
 end
 $:.unshift File.dirname(__FILE__)
 gems = %w(sinatra sequel json).each {|gem| require gem}
+# require 'yajl/json_gem' #enable compatability with json gem
 
 Dir[File.dirname(__FILE__)+"/lib/*.rb"].each{|lib| require lib}
 Dir[File.dirname(__FILE__)+"/lib/*/*.rb"].each{|lib| require lib}
 
 DB = Sequel.connect("sqlite://db/metavirt.db") unless defined?(DB)
-
-Dir[File.dirname(__FILE__)+"/app/*/*.rb"].each{|part| require part}
 
 module MetaVirt
   include Rack::Utils
@@ -54,20 +53,6 @@ module MetaVirt
       erb :bootstrap, :layout=>:none
     end
     
-    get '/pools/' do
-      erb "#{pools.keys.inspect}"
-    end
-
-    get '/clouds/' do
-      @clds = clouds
-      erb :clouds
-    end
-  
-    get '/cloud/:name' do
-      @cld = clouds[params[:name].to_sym]
-      @cld.to_properties_hash.to_json
-    end
-    
     put( /\/run-instance|\/launch_new_instance/ ) do
       params =  JSON.parse(@env['rack.input'].read).symbolize_keys!
       p [:params, params]
@@ -89,5 +74,7 @@ module MetaVirt
 
   end
 end
+
+Dir[File.dirname(__FILE__)+"/app/*/*.rb"].each{|part| require part}
 
 include MetaVirt #just to make my irb sessions easier

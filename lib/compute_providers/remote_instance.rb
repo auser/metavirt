@@ -14,7 +14,8 @@ module PoolParty
                   :internal_ip, # Internal ip of the remote instance
                   :public_ip,
                   :launch_time,
-                  :status       # Status of the remote instance
+                  :status,       # Status of the remote instance
+                  :instance_id
       
       def initialize(opts={})
         set_vars_from_options(opts) if opts.is_a?(Hash)
@@ -89,13 +90,6 @@ module PoolParty
       # The remote instances is only valid if there is an ip and a name
       def valid?
         (ip.nil? || name.nil?) ? false : true
-      end
-      
-      # This is how we get the current load of the instance
-      # The approach of this may change entirely, but the usage of
-      # it will always be the same
-      def load
-        current_load ||= 0.0  #NOTE MF: returning 0.0 seems like a bad idea here.  should return nil if we dont have a real value
       end
       
     end

@@ -3,9 +3,17 @@ require File.dirname(__FILE__) + "/../test_helper"
 class TestMachineImage < Test::Unit::TestCase
   def setup
     @repo = File.dirname(__FILE__)+'/../fixtures/machine_images'
+    FileUtils.rm_rf(@repo+'/clones')
+    FileUtils.rm_rf('/tmp/mv_testing')
     FileUtils.mkdir_p('/tmp/mv_testing')
     @mvi = machine_image_fixture
+    MachineImage.any_instance.stubs(:repository).returns(@repo)
   end
+  
+  # def teardown
+  #   FileUtils.rm_rf(@repo+'/clones')
+  #   FileUtils.rm_rf('/tmp/mv_testing')
+  # end
   
   def test_list
     assert_kind_of Array, MachineImage.list
@@ -19,12 +27,14 @@ class TestMachineImage < Test::Unit::TestCase
   end
   
   def test_rsync_clone_to
+    FileUtils.rm_rf(@repo+'/clones')
     @mvi.rsync_clone_to(:target=>'/tmp/mv_testing')
     File.exists?("/tmp/mv_testing/#{@mvi.image_id}.xml")
     File.exists?("/tmp/mv_testing/#{@mvi.root_disk_image}")    
   end
   
   def test_rsync_to_custom_image_id
+    FileUtils.rm_rf(@repo+'/clones')
     @mvi.rsync_clone_to(:target=>'/tmp/mv_testing', :image_id=>'custom')
     File.exists?("/tmp/mv_testing/#{@mvi.root_disk_image}")
     File.exists?("/tmp/mv_testing/custom.xml")

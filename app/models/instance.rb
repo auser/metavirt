@@ -36,15 +36,17 @@ module MetaVirt
     #   end
     
     def self.defaults
-      { :authorized_keys => nil,
-        :keypair_name => nil,
-        :image_id => nil,
-        :remoter_base => :vmrun,
-        :created_at => Time.now,
+      { :launch_time      => nil,
+        :mac_address      => nil,
+        :authorized_keys  => nil,
+        :keypair_name     => nil,
+        :image_id         => nil,
+        :remoter_base     => :vmrun,
+        :created_at       => Time.now,
+        :instance_id      => generate_instance_id,
+        :vmx_file         => nil,
+        :status           => 'booting',
         :remoter_base_options => nil,
-        :instance_id => generate_instance_id,
-        :vmx_file => nil,
-        :status => 'booting',
         :instance_storage_path => '/var/metavirt/instances/'
        }
     end
@@ -65,7 +67,7 @@ module MetaVirt
       # safe_params[:authorized_keys] << params[:public_key].to_s
       safe_params[:remoter_base_options] = params[:remote_base].to_yaml if params[:remote_base]
       inst = create safe_params
-      inst.prepare_image if inst.remoter_base.match /vmrun|libvirt/
+      inst.prepare_image if inst.remoter_base.match(/vmrun|libvirt/)
       inst
     end
     
@@ -75,7 +77,7 @@ module MetaVirt
       droid = mvi.rsync_clone_to :target   => "#{instances_playground}/#{instance_id}",
                                  :image_id => instance_id
       if provider.respond_to? :register_image
-        provider.register_image("#{instances_playground}/#{instance_id}/#{droid.image_id}.xml")
+        provider.register_image("#{instances_playground}/#{instance_id}/#{instance_id}.xml")
       end
       droid
     end
@@ -87,16 +89,16 @@ module MetaVirt
       opts.merge! options if options
       launched = provider.launch_new_instance!(opts)
       p [:opts, opts]
-      launched.launch_time = Time.now
+      launched.launch_time Time.now
       launched.symbolize_keys! if launched.respond_to? :symbolize_keys!
-      if remoter_base=='vmrun'
-        launched.delete(:instance_id)  # we want to use the metavirt id
-        launched.delete(:status)  #vmrun always returns 'running' so we override it here untill node checks in
-      end
+      # if remoter_base=='vmrun'
+      #   launched.delete(:instance_id)  # we want to use the metavirt id
+      #   launched.delete(:status)  #vmrun always returns 'running' so we override it here untill node checks in
+      # end
+      # :launched_at => Time.now
       set Instance.safe_params(launched)
-      launched_at = Time.now
-      status      = 'booting'
       save
+      self
     end
     
     def terminate!
@@ -117,6 +119,7 @@ module MetaVirt
     
     def to_json
       to_hash.to_json
+      # Yajl::Encoder.new.encode(to_hash)
     end
     
     # Dump to html

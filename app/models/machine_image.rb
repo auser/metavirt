@@ -105,9 +105,10 @@ module MetaVirt
       FileUtils.mkdir_p("#{path}/clones/#{droid.image_id}")
       droid.root_disk_image("#{options[:target]}/#{root_disk_image_name}")
       droid.write_domain_xml("#{path}/clones/#{droid.image_id}")
-      FileUtils.ln_s(root_disk_image, "#{path}/clones/#{droid.image_id}/#{root_disk_image_name}")
+      FileUtils.ln_sf(root_disk_image,
+                     "#{path}/clones/#{droid.image_id}/#{root_disk_image_name}"
+                    )
       `rsync -L #{options[:rsync_opts]} "#{path}/clones/#{droid.image_id}/" #{options[:target]}`
-      # `rsync #{rsync_opts} #{root_disk_image} #{target}`
       droid
     end
     

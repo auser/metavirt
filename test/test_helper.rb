@@ -6,7 +6,6 @@ require 'sequel'
 require 'ruby-debug'
 require 'fileutils'
 require 'pending'
-require  File.dirname(__FILE__)+'/mock_remoter'
 
 $TESTING = true
 
@@ -16,6 +15,7 @@ DB = Sequel.sqlite unless defined?(DB)
 InitializeDB.apply(DB, :up) unless DB.tables.include?(:version)
 
 require File.dirname(__FILE__) + "/../app.rb"
+require  File.dirname(__FILE__)+'/mock_remoter'
 
 Test::Unit::TestCase.send(:include, Metavirt)
 
@@ -24,7 +24,8 @@ def fake_instance(opts={})
 end
 
 def machine_image_fixture
-   MachineImage.new(
+  @repo = File.dirname(__FILE__)+'/fixtures/machine_images'
+  mi = MachineImage.new(
           :cpus       => 1,
           :memory     => 256,
           :arch       => 'i386',
@@ -34,4 +35,6 @@ def machine_image_fixture
           :root_disk_image => "#{@repo}/mvi_1df7be00/disk0.qcow2",
           :image_id   => 'mvi_1df7be00'
           )
+  mi.root_disk_image = File.expand_path(@repo+'/mvi_1df7be00/disk0.qcow2')
+  mi
 end

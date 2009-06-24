@@ -61,6 +61,7 @@ module PoolParty
                             }.merge(o)
                           ).launch!
       end
+      
       # Terminate an instance by id
       def self.terminate_instance!(o={})
         new(o).terminate_instance!
