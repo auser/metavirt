@@ -166,3 +166,5 @@ module PoolParty
     end
   end
 end
+
+Dir["#{::File.dirname(__FILE__)}/utilities/*.rb"].each {|lib| require lib}

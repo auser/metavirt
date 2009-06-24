@@ -1,5 +1,5 @@
 <table border="1" cellspacing="0" cellpadding="5">
-  <caption><%= @instances.count %> Instance</caption>
+  <caption><%= @instances.size %> Instance <%= "s" if @instances.size > 1 %></caption>
   <tr>
     <th>instance_id</th>
     <th>image_id</th>
@@ -24,4 +24,5 @@
       <td><a href='http://<%= instance.internal_ip %>:8642'><%= instance.internal_ip %></a></td>
     </tr>
   <% end %>
+  
 </table>

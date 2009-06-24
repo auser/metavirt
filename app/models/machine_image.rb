@@ -117,11 +117,22 @@ module MetaVirt
     end
     
     def write_domain_xml(location=path)
-      template = open(File.dirname(__FILE__)+'/../views/machine_images/domain_xml.erb').read
-      @mvi=self  #put in instance varibale for erb
-      xml = ERB.new(template).result(binding)
-      File.open("#{location}/#{image_id}.xml",'w'){|f| f << xml}
-      xml
+      case remoter_base
+      when :libvirt
+        template = open(File.dirname(__FILE__)+'/../views/machine_images/domain_xml.erb').read
+        @mvi=self  #put in instance varibale for erb
+        xml = ERB.new(template).result(binding)
+        File.open("#{location}/#{image_id}.xml",'w'){|f| f << xml}
+        xml
+      when :vmrun
+        # stuff
+        vmx = VmxFile.new("#{location}/#{image_id}")
+        vmx.set "ide0:0.fileName", "#{image_id}.vmdk"
+        vmx.set "displayName", "#{image_id} vmx"
+        vmx.set "log.fileName", "PoolParty.log"
+        vmx.compile
+        vmx.to_vmx
+      end
     end
     
     def domain_xml
