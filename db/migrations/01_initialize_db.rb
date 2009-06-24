@@ -37,6 +37,7 @@ class InitializeDB < Sequel::Migration
     end
     
     create_table :hosts do
+      primary_key :id
       String :name
       String :internal_ip
       String :keypair_name

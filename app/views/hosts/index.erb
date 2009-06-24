@@ -1,0 +1,33 @@
+<h1>Listing hosts</h1>
+
+<table>
+  <tr>
+    <th>Name</th>
+    <th>Internal ip</th>
+    <th>Keypair name</th>
+    <th>Instances storage path</th>
+    <th>Description</th>
+    <th>Memory</th>
+    <th>Cpu count</th>
+    <th>Cpu info</th>
+    <th>Free storage</th>
+  </tr>
+
+<% @hosts.each do |host| %>
+  <tr>
+    <td><a href='<%=h host.name %>'><%=h host.name %></a></td>
+    <td><%=h host.internal_ip %></td>
+    <td><%=h host.keypair_name %></td>
+    <td><%=h host.instances_storage_path %></td>
+    <td><%=h host.description %></td>
+    <td><%=h host.memory %></td>
+    <td><%=h host.cpu_count %></td>
+    <td><%=h host.cpu_info %></td>
+    <td><%=h host.free_storage %></td>
+  </tr>
+<% end %>
+</table>
+
+<p>
+  <a href='new'>add host</a>
+</p>
