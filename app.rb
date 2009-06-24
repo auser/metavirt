@@ -53,20 +53,6 @@ module MetaVirt
       erb :bootstrap, :layout=>:none
     end
     
-    get '/pools/' do
-      erb "#{pools.keys.inspect}"
-    end
-
-    get '/clouds/' do
-      @clds = clouds
-      erb :clouds
-    end
-  
-    get '/cloud/:name' do
-      @cld = clouds[params[:name].to_sym]
-      @cld.to_properties_hash.to_json
-    end
-    
     put( /\/run-instance|\/launch_new_instance/ ) do
       params =  JSON.parse(@env['rack.input'].read).symbolize_keys!
       p [:params, params]

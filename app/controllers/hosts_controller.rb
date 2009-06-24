@@ -18,7 +18,7 @@ module MetaVirt
     end
     
     post '/' do
-      @host Host.create(params)  #or = Host[:name=>params[:name]]
+      @host = Host.create(params)  #or = Host[:name=>params[:name]]
       @host.update params
       @host.save
       erb :show

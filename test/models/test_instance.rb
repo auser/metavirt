@@ -71,7 +71,8 @@ class TestInstance < Test::Unit::TestCase
   def test_start
     @inst.stubs(:provider).returns(MockRemoter.new)
     launched = @inst.start!
-    assert_equal 'pending', launched.status
+    # assert_not_nil launched.mac_adress
+    assert_equal 'booting', launched.status
     assert_equal launched.instance_id, @inst.instance_id
   end
     
