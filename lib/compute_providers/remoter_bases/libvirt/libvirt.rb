@@ -28,7 +28,7 @@ module PoolParty
       end
       def launch_new_instance!(o={})
         `virsh start #{instance_id}`
-        describe_instance :image_id=>image_id
+        LibvirtInstance.new(:image_id=>image_id)
       end
       
       # Terminate an instance by id

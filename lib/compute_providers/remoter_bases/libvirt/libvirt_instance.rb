@@ -7,7 +7,6 @@ module PoolParty
       include Dslify
       
       dsl_methods :name,
-                  :instance_id, # Libvirt UUID
                   :image_id,
                   :ip,          # Ip of the remote instance, by default, the public_ip
                   :internal_ip, # Internal ip of the remote instance

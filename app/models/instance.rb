@@ -36,7 +36,8 @@ module MetaVirt
     #   end
     
     def self.defaults
-      { :authorized_keys => nil,
+      { :launch_time => nil,
+        :authorized_keys => nil,
         :keypair_name => nil,
         :image_id => nil,
         :remoter_base => :vmrun,
@@ -87,7 +88,7 @@ module MetaVirt
       opts.merge! options if options
       launched = provider.launch_new_instance!(opts)
       p [:opts, opts]
-      launched.launch_time = Time.now
+      launched[:launch_time] = Time.now
       launched.symbolize_keys! if launched.respond_to? :symbolize_keys!
       if remoter_base=='vmrun'
         launched.delete(:instance_id)  # we want to use the metavirt id

@@ -1,4 +1,6 @@
 require 'uuid'
+# require File.dirname(__FILE__)+"/../lib/compute_providers/remoter_base"
+# require File.dirname(__FILE__)+"/../lib/compute_providers/remote_instance"
 
 class MockRemoter
   def self.generate_hash
@@ -25,7 +27,7 @@ class MockRemoter
   def launch_new_instance!(o={})
     ip_not_assigned_yet = self.class.generate_hash
     @inst = ip_not_assigned_yet.merge(self.class.generate_ips)
-    ip_not_assigned_yet
+    MockRemoterInstance.new(ip_not_assigned_yet)
   end
   
   def terminate_instance(id)
@@ -38,4 +40,20 @@ class MockRemoter
   def describe_instances(o={})
     @inst ||= self.class.generate_hash
   end
+end
+
+require 'ostruct'
+class MockRemoterInstance < Hash
+  
+  def method_missing(*m)
+    super and return if m && m.size==1
+    if has_key? m.first
+      fetch(m.first) 
+    elsif has_key? m.first.to_s
+      fetch(m)
+    else
+      super
+    end
+  end
+
 end
